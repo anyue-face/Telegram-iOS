@@ -9,8 +9,8 @@
 
 ## 已定的决策
 
-- 服务器：`167.104.103.22:2398`，单后端，规范 DC 为 2；RSA 公钥与 Android、tdesktop 相同
-  （指纹 `0x5d729d647fa6567c`）。
+- 服务器：`167.104.102.244:2398`，单后端，规范 DC 为 2；RSA 公钥指纹 `0xf5046c55aea0a065`
+  （2026-11-08 从 `167.104.103.22` / `0x5d729d647fa6567c` 换过来）。
 - bundle id `cc.darkmoon`；`api_id`/`api_hash` 保持默认（服务端不校验）；Team ID 和描述文件
   最后再定，开发期用模拟器构建（`build-system/fake-codesigning` + `--disableProvisioningProfiles`）。
 - 链接：`darkmoon.cc` 替代 `t.me`，scheme `dm://` 替代 `tg://`；`t.me` 不再当内部链接。
