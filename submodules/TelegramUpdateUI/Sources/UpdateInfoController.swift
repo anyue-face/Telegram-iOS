@@ -115,7 +115,12 @@ public func updateInfoController(context: AccountContext, appUpdateInfo: AppUpda
     actionsDisposable.add(navigateDisposable)
     
     let arguments = UpdateInfoControllerArguments(openAppStorePage: {
-        context.sharedContext.applicationBindings.openAppStorePage()
+        if let url = appUpdateInfo.url {
+            // telesrv names the page the enterprise-signed build is downloaded from; there is no App Store page.
+            context.sharedContext.applicationBindings.openUrl(url)
+        } else {
+            context.sharedContext.applicationBindings.openAppStorePage()
+        }
     }, linkAction: { action, itemLink in
         linkActionImpl?(action, itemLink)
     })

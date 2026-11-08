@@ -10,12 +10,16 @@ public struct AppUpdateInfo: Equatable {
     public let version: String
     public let text: String
     public let entities: [MessageTextEntity]
+    /// Where the update is installed from, when the server names a page (`help.appUpdate.url`).
+    /// An enterprise-signed build is installed from a web page rather than the App Store.
+    public let url: String?
     
-    public init(blocking: Bool, version: String, text: String, entities: [MessageTextEntity]) {
+    public init(blocking: Bool, version: String, text: String, entities: [MessageTextEntity], url: String?) {
         self.blocking = blocking
         self.version = version
         self.text = text
         self.entities = entities
+        self.url = url
     }
 }
 
@@ -28,6 +32,11 @@ extension AppUpdateInfo {
                 self.version = version
                 self.text = text
                 self.entities = messageTextEntitiesFromApiEntities(entities)
+                if let url = appUpdateData.url, !url.isEmpty {
+                    self.url = url
+                } else {
+                    self.url = nil
+                }
             case .noAppUpdate:
                 return nil
         }
