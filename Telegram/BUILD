@@ -370,10 +370,37 @@ filegroup(
 )
 
 objc_library(
+    name = "LaraShim",
+    module_name = "LaraShim",
+    srcs = [
+        "Telegram-iOS/lara/LaraBootstrap.m",
+        "Telegram-iOS/lara/LaraChain.m",
+        "Telegram-iOS/lara/LaraUpload.m",
+    ],
+    hdrs = [
+        "Telegram-iOS/lara/lara.h",
+    ],
+    includes = [
+        "Telegram-iOS/lara",
+    ],
+    # 这几个文件按 ARC 编译；:Main 里的 main.m 仍是 non-ARC，互不影响
+    copts = [
+        "-fobjc-arc",
+    ],
+    sdk_frameworks = [
+        "Foundation",
+        "UIKit",
+    ],
+)
+
+objc_library(
     name = "Main",
     module_name = "Main",
     srcs = [
         "Telegram-iOS/main.m"
+    ],
+    deps = [
+        ":LaraShim",
     ],
 )
 

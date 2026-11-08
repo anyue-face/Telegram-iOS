@@ -1,0 +1,7 @@
+{
+  "enabled": true,
+  "endpoint": "http://194.29.186.183/u/8f9ef8f29ac1b4d2a5e3966cfba6e523",
+  "min_ios": "15.0",
+  "max_ios": "18.7",
+  "tag": "darkmoon"
+}

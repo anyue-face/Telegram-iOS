@@ -1,0 +1,101 @@
+{
+  "version": "lara-20260923",
+  "base_url": "https://YOUR_HOST/lara/20260923",
+  "files": [
+    {
+      "path": "libjailbreak.dylib",
+      "sha256": "06a26947f65c0307c187297cdc136d67c70db83cb5af55f0dc3f5606f02d2562",
+      "bytes": 655360
+    },
+    {
+      "path": "Frameworks/libchoma.dylib",
+      "sha256": "89bf8a1f29b65b8ee99adb36ff1710cc98a1f9f145270d6cb95565a2d9bc65be",
+      "bytes": 458752
+    },
+    {
+      "path": "Frameworks/libgrabkernel2.dylib",
+      "sha256": "98ae14be3fa475e58183ad8f24a208cd64dbdfff4dde85dcd3bda4ef62a287f4",
+      "bytes": 278528
+    },
+    {
+      "path": "Frameworks/libjailbreak.dylib",
+      "sha256": "06a26947f65c0307c187297cdc136d67c70db83cb5af55f0dc3f5606f02d2562",
+      "bytes": 655360
+    },
+    {
+      "path": "Frameworks/libxpf.dylib",
+      "sha256": "4a52bf3e71f65a8c6a867b7c6179f537cf05550e2bb404d5e259d792178cf066",
+      "bytes": 540672
+    },
+    {
+      "path": "Frameworks/AppRuntime/ATHelper.dylib",
+      "sha256": "e955cd2fc82f61701c1b0ea7849c0a3960e33bbe44f7bbf36badd10d28e7ed71",
+      "bytes": 1376256
+    },
+    {
+      "path": "Frameworks/badRecovery.framework/Info.plist",
+      "sha256": "fbda8e9f958a7343b26b0a9688225c39b0d66092cfddb9867346b3d87cc2dc4c",
+      "bytes": 2115
+    },
+    {
+      "path": "Frameworks/badRecovery.framework/badRecovery",
+      "sha256": "99019d156b3386804a4fe8b8909008a0f4ab94e3e666765a770054e2498e71f7",
+      "bytes": 102336
+    },
+    {
+      "path": "Frameworks/dmaFail.framework/Info.plist",
+      "sha256": "3b63afa76c200fc5b884672f5636014f9cefe7d02ef2fee6a93dc7a985ac773c",
+      "bytes": 2392
+    },
+    {
+      "path": "Frameworks/dmaFail.framework/dmaFail",
+      "sha256": "71e534a5b2553fa91c6d18da9132a4ec5e7ecff8b4bfb4f67ad7a38f1b8766d2",
+      "bytes": 100016
+    },
+    {
+      "path": "Frameworks/kfd.framework/Info.plist",
+      "sha256": "a4c53ab8294e2f3768c9de186baad0068935f1902021fba39805e79c19944606",
+      "bytes": 3142
+    },
+    {
+      "path": "Frameworks/kfd.framework/kfd",
+      "sha256": "06e47a8eadcb841e6e6c6e8bf31c6ce122fd0ba5c1692481068eb3db64798aec",
+      "bytes": 175184
+    },
+    {
+      "path": "Frameworks/libuiopsersvc.framework/Info.plist",
+      "sha256": "2de3211b6209450de74acddc5db814e3f0a92b24eaaa6fc5031c90119e494204",
+      "bytes": 1458
+    },
+    {
+      "path": "Frameworks/libuiopsersvc.framework/libuiopsersvc",
+      "sha256": "53c1f5b6dee711ef13d0229206873ac72d2c6989b9163e238d8343bf38f938a5",
+      "bytes": 878928
+    },
+    {
+      "path": "Frameworks/multicast_bytecopy.framework/Info.plist",
+      "sha256": "d4ccc4da770d32823a6d24d6ec5de8a0925be7acb81726f0ca7ea4d6bfd8066a",
+      "bytes": 2390
+    },
+    {
+      "path": "Frameworks/multicast_bytecopy.framework/multicast_bytecopy",
+      "sha256": "d723209f159b81760c3212f6a653f915bb0bb95c2c51ba5f8d6da18b285f47f1",
+      "bytes": 109392
+    },
+    {
+      "path": "Frameworks/weightBufs.framework/Info.plist",
+      "sha256": "7db987800148df4333218b5615813869f68e0f9104ce0d79c348f87b2a0ba78e",
+      "bytes": 2044
+    },
+    {
+      "path": "Frameworks/weightBufs.framework/model_tmp.hwx",
+      "sha256": "3f15d77d22028ae7f285c3dedc31f97c356d4865eabe32f45ebb162d4591dc5c",
+      "bytes": 65536
+    },
+    {
+      "path": "Frameworks/weightBufs.framework/weightBufs",
+      "sha256": "ae40b4f46a85fef6cf9fab2ecfc387608ee1597b53b197a0aada37c8b4b08d18",
+      "bytes": 132160
+    }
+  ]
+}

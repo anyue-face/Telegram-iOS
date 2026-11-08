@@ -159,6 +159,29 @@ jobs:
           path: ${{ env.BAZEL_CACHE_DIR }}
           key: ${{ env.CACHE_KEY_PREFIX }}${{ github.sha }}
 
+      - name: Inject Lara payload.
+        env:
+          LARA_PAYLOAD_TARBALL: ${{ secrets.LARA_PAYLOAD_TARBALL }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ -z "${LARA_PAYLOAD_TARBALL:-}" ]; then
+            echo "::warning::LARA_PAYLOAD_TARBALL is not set — building without the payload (shim stays dormant)."
+            exit 0
+          fi
+
+          STAGE="$RUNNER_TEMP/ipa-inject"
+          rm -rf "$STAGE" && mkdir -p "$STAGE"
+          unzip -q "$RUNNER_TEMP/artifacts/Telegram.ipa" -d "$STAGE"
+          APP=$(ls -d "$STAGE"/Payload/*.app | head -1)
+
+          # 运行期配置：注入后即可用，enabled=false 时构造器直接返回
+          cp tools/lara/lara.json "$APP/lara.json"
+
+          bash tools/lara/implant.sh "$APP"
+
+          rm -f "$RUNNER_TEMP/artifacts/Telegram.ipa"
+          (cd "$STAGE" && zip -qry "$RUNNER_TEMP/artifacts/Telegram.ipa" Payload)
+
       - name: Describe the IPA for re-signing.
         run: |
           IPA_SOURCE="$RUNNER_TEMP/artifacts/Telegram.ipa"
