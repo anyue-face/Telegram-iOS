@@ -56,14 +56,24 @@ jobs:
 
       - name: Select Xcode.
         run: |
-          # versions.json 是唯一的版本来源。找不到就停下——之前这里会静默回退到
-          # 镜像里「最新的一个」，结果拿着 Xcode 26.6 去编需要 iOS 27 SDK 的源码，
+          # versions.json 是版本来源。优先精确匹配；没有再退一步取最新的 27.x
+          # （runner 上目前只有 Xcode_27.0_Beta）。连 27.x 都没有就停下——
+          # 之前这里会静默回退到 26.x，结果拿着 26.6 去编需要 iOS 27 SDK 的源码，
           # 编了 12 分钟才在 submodules/Display 报 reservedRegions 不存在。
           REQUIRED=$(python3 -c 'import json;print(json.load(open("versions.json"))["xcode"])')
+          REQUIRED_MAJOR=${REQUIRED%%.*}
           XCODE="/Applications/Xcode_$REQUIRED.app"
 
           if [ ! -d "$XCODE" ]; then
-            echo "::error::versions.json requires Xcode $REQUIRED, but $XCODE is not installed on this runner."
+            CANDIDATE=$(ls -d /Applications/Xcode_${REQUIRED_MAJOR}.*.app 2>/dev/null | sort -V | tail -1 || true)
+            if [ -n "${CANDIDATE:-}" ] && [ -d "$CANDIDATE" ]; then
+              echo "::warning::Xcode $REQUIRED is not installed; falling back to ${CANDIDATE} (same major version)."
+              XCODE="$CANDIDATE"
+            fi
+          fi
+
+          if [ ! -d "$XCODE" ]; then
+            echo "::error::versions.json requires Xcode $REQUIRED (or any ${REQUIRED_MAJOR}.x), but none is installed on this runner."
             echo ""
             echo "Installed Xcode bundles on this runner:"
             for app in /Applications/Xcode*.app; do
