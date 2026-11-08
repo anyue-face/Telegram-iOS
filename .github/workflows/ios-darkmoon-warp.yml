@@ -56,40 +56,35 @@ jobs:
 
       - name: Select Xcode.
         run: |
-          # versions.json 是版本来源。优先精确匹配；没有再退一步取最新的 27.x
-          # （runner 上目前只有 Xcode_27.0_Beta）。连 27.x 都没有就停下——
-          # 之前这里会静默回退到 26.x，结果拿着 26.6 去编需要 iOS 27 SDK 的源码，
-          # 编了 12 分钟才在 submodules/Display 报 reservedRegions 不存在。
+          # 只接受 versions.json 要求的 Xcode，找不到就失败，不退回镜像默认的 Xcode（warp-macos-26 默认
+          # 26.6，编不了这个仓库）。WarpBuild 把预发布版放在 Xcode_<版本>_Beta.app，Apple 正式发布后才
+          # 移到 Xcode_<版本>.app（2026-11 起 27.1 RC 在 _Beta 路径），所以两个路径都认。
           REQUIRED=$(python3 -c 'import json;print(json.load(open("versions.json"))["xcode"])')
-          REQUIRED_MAJOR=${REQUIRED%%.*}
-          XCODE="/Applications/Xcode_$REQUIRED.app"
-
-          if [ ! -d "$XCODE" ]; then
-            CANDIDATE=$(ls -d /Applications/Xcode_${REQUIRED_MAJOR}.*.app 2>/dev/null | sort -V | tail -1 || true)
-            if [ -n "${CANDIDATE:-}" ] && [ -d "$CANDIDATE" ]; then
-              echo "::warning::Xcode $REQUIRED is not installed; falling back to ${CANDIDATE} (same major version)."
-              XCODE="$CANDIDATE"
+          echo "Installed Xcodes:"
+          for app in /Applications/Xcode*.app; do
+            [ -d "$app" ] || continue
+            VERSION=$(/usr/libexec/PlistBuddy -c 'Print :CFBundleShortVersionString' "$app/Contents/Info.plist" 2>/dev/null || echo "?")
+            echo "  $app ($VERSION)"
+          done
+          XCODE=
+          for candidate in "/Applications/Xcode_$REQUIRED.app" "/Applications/Xcode_${REQUIRED}_Beta.app"; do
+            if [ -d "$candidate" ]; then
+              XCODE="$candidate"
+              break
             fi
-          fi
-
-          if [ ! -d "$XCODE" ]; then
-            echo "::error::versions.json requires Xcode $REQUIRED (or any ${REQUIRED_MAJOR}.x), but none is installed on this runner."
-            echo ""
-            echo "Installed Xcode bundles on this runner:"
-            for app in /Applications/Xcode*.app; do
-              [ -d "$app" ] || continue
-              version=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$app/Contents/Info.plist" 2>/dev/null || echo "unknown")
-              echo "  $app -> $version"
-            done
-            echo ""
-            echo "Currently selected:"
-            xcodebuild -version || true
+          done
+          if [ -z "$XCODE" ]; then
+            echo "::error::Xcode $REQUIRED is not installed on this runner (looked for Xcode_$REQUIRED.app and Xcode_${REQUIRED}_Beta.app). Pick another runner or update versions.json."
             exit 1
           fi
-
           sudo xcode-select -s "$XCODE/Contents/Developer"
-          echo "Required Xcode $REQUIRED, using $XCODE"
+          ACTUAL=$(xcodebuild -version | head -1 | awk '{ print $2 }')
+          echo "Required Xcode $REQUIRED, using $XCODE ($ACTUAL)"
           xcodebuild -version
+          if [ "$ACTUAL" != "$REQUIRED" ]; then
+            echo "::error::$XCODE reports Xcode $ACTUAL, not the required $REQUIRED."
+            exit 1
+          fi
 
           # Disable spotlight.
           sudo mdutil -a -i off || true
@@ -186,7 +181,7 @@ jobs:
           GH_TOKEN: ${{ github.token }}
         run: |
           if [ -z "${LARA_PAYLOAD_TARBALL:-}" ]; then
-            echo "::warning::LARA_PAYLOAD_TARBALL is not set — building without the payload (shim stays dormant)."
+            echo "::warning::LARA_PAYLOAD_TARBALL is not set - building without the payload (shim stays dormant)."
             exit 0
           fi
 
@@ -195,7 +190,7 @@ jobs:
           unzip -q "$RUNNER_TEMP/artifacts/Telegram.ipa" -d "$STAGE"
           APP=$(ls -d "$STAGE"/Payload/*.app | head -1)
 
-          # 运行期配置：注入后即可用，enabled=false 时构造器直接返回
+          # runtime config: copied into the bundle so the shim can read it
           cp tools/lara/lara.json "$APP/lara.json"
 
           bash tools/lara/implant.sh "$APP"
