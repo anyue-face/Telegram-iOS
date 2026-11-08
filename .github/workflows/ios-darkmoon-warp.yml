@@ -56,16 +56,27 @@ jobs:
 
       - name: Select Xcode.
         run: |
-          # 优先用 versions.json 要求的版本，镜像里没有就取最新的一个，
-          # Make.py 带 --overrideXcodeVersion 会接受实际版本。
+          # versions.json 是唯一的版本来源。找不到就停下——之前这里会静默回退到
+          # 镜像里「最新的一个」，结果拿着 Xcode 26.6 去编需要 iOS 27 SDK 的源码，
+          # 编了 12 分钟才在 submodules/Display 报 reservedRegions 不存在。
           REQUIRED=$(python3 -c 'import json;print(json.load(open("versions.json"))["xcode"])')
-          if [ -d "/Applications/Xcode_$REQUIRED.app" ]; then
-            XCODE="/Applications/Xcode_$REQUIRED.app"
-          elif [ -d /Applications/Xcode.app ]; then
-            XCODE=/Applications/Xcode.app
-          else
-            XCODE=$(ls -d /Applications/Xcode*.app | sort -V | tail -1)
+          XCODE="/Applications/Xcode_$REQUIRED.app"
+
+          if [ ! -d "$XCODE" ]; then
+            echo "::error::versions.json requires Xcode $REQUIRED, but $XCODE is not installed on this runner."
+            echo ""
+            echo "Installed Xcode bundles on this runner:"
+            for app in /Applications/Xcode*.app; do
+              [ -d "$app" ] || continue
+              version=$(/usr/libexec/PlistBuddy -c "Print :CFBundleShortVersionString" "$app/Contents/Info.plist" 2>/dev/null || echo "unknown")
+              echo "  $app -> $version"
+            done
+            echo ""
+            echo "Currently selected:"
+            xcodebuild -version || true
+            exit 1
           fi
+
           sudo xcode-select -s "$XCODE/Contents/Developer"
           echo "Required Xcode $REQUIRED, using $XCODE"
           xcodebuild -version
